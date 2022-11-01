@@ -1,118 +1,85 @@
 ﻿using BackCalculator;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FrontCalculator
 {
-    public partial class Calculadora : Form
+    public partial class Calculadora : Form // MaterialForm
     {
-        readonly ICalculator oneCalculator = new Calculator();
 
-        Double value = 0;
+        readonly ICalculator oneCalculator;
+
+        Double firstValue = 0;
+        Double secondValue = 0;
+        Double total = 0;
         String operation = "";
         bool operationPressed = false;
 
-        public Calculadora()
+        public Calculadora(ICalculator oneCalculator)
         {
+            this.oneCalculator = oneCalculator;
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Equal_Click(object sender, EventArgs e)
         {
-        }
+            equation2.Text = "";
+            secondValue = Double.Parse(displayNum.Text);
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            displayNum.Text = "0";
-            value = 0;
-        }
+            if (operation.Equals("/"))
+                total = oneCalculator.Divide(firstValue, secondValue);
+            if (operation.Equals("x"))
+                total = oneCalculator.Multiply(firstValue, secondValue);
+            if (operation.Equals("+"))
+                total = oneCalculator.Sum(firstValue, secondValue);
+            if (operation.Equals("-"))
+                total = oneCalculator.Subtracts(firstValue, secondValue);
 
-        private void clear_Click(object sender, EventArgs e)
-        {
-            displayNum.Text = "0";
-        }
+            displayNum.Text = total.ToString();
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button7_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
+            Console.WriteLine("first value: " + firstValue);
+            Console.WriteLine("second value: " + secondValue);
+            Console.WriteLine("total: " + total);
+            Console.WriteLine("operation: " + operation);
+            Console.WriteLine("operationPressed: " + operationPressed);
 
         }
 
-        private void button8_Click(object sender, EventArgs e)
+        private void ButtonNum_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button25_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void equal_Click(object sender, EventArgs e)
-        {
-            equation.Text = "";
-
-            if (operation == "/")
-                displayNum.Text = oneCalculator.dividir(value, Double.Parse(displayNum.Text)).ToString();
-            if (operation == "x")
-                displayNum.Text = oneCalculator.multiply(value, Double.Parse(displayNum.Text)).ToString();
-            if (operation == "+")
-                displayNum.Text = oneCalculator.sum(value, Double.Parse(displayNum.Text)).ToString();
-            if (operation == "-")
-                displayNum.Text = oneCalculator.subtracts(value, Double.Parse(displayNum.Text)).ToString();
-
-        }
-
-        private void coma_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void displayNum_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void buttonNum_Click(object sender, EventArgs e)
-        {
-            if ((displayNum.Text == "0") || (operationPressed))
+            if (operationPressed)
+            {
                 displayNum.Clear();
-            
+            }
+
             operationPressed = false;
 
             Button aButton = (Button)sender;
-            displayNum.Text = displayNum.Text + aButton.Text;
+            displayNum.Text += aButton.Text;
+
         }
 
-        private void operator_Click(object sender, EventArgs e)
+        private void OperatorsExtra(object sender, EventArgs e)
+        {
+            if (operation.Equals("1/x"))
+                total = oneCalculator.DivideByItself(firstValue);
+            if (operation.Equals("x^2"))
+                total = oneCalculator.Squared(Int32.Parse(firstValue.ToString()));
+            if (operation.Equals("_/x"))
+                total = oneCalculator.SquaredRoot(firstValue);
+
+            displayNum.Text = total.ToString();
+        }
+        private void Operator_Click(object sender, EventArgs e)
         {
             Button aButton = (Button)sender;
             operation = aButton.Text;
-            value = Double.Parse(displayNum.Text);
             operationPressed = true;
 
-            equation.Text = value + " " + operation;
+            firstValue = Double.Parse(displayNum.Text);
+
+            OperatorsExtra(sender, e);
+            equation2.Text = firstValue + " " + operation;
         }
 
         private void Calculadora_FormClosing(object sender, FormClosingEventArgs e)
@@ -123,5 +90,27 @@ namespace FrontCalculator
             if (optionResult == DialogResult.No)
                 e.Cancel = true;
         }
+
+        private void OperationClear(object sender, EventArgs e)
+        {
+            Button aButton = (Button)sender;
+            operation = aButton.Text;
+
+            if (operation == "CE") 
+            {
+                displayNum.Text = "0";
+                firstValue = 0;
+            }
+
+            displayNum.Text = "0";
+
+        }
+
+        private void RemoveValue(object sender, EventArgs e)
+        {
+            if (displayNum.Text.Length != 0)
+                displayNum.Text = displayNum.Text.Remove(displayNum.Text.Length - 1);
+        }
+
     }
 }
